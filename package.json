@@ -1,0 +1,22 @@
+{
+  "name": "sqlitetords",
+  "version": "1.0.0",
+  "description": "로컬 디비 파일 RDS 업로드 모듈",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/isntkyu/SQLiteToRDS.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/isntkyu/SQLiteToRDS/issues"
+  },
+  "homepage": "https://github.com/isntkyu/SQLiteToRDS#readme",
+  "dependencies": {
+    "sqlite3": "^5.0.8"
+  }
+}
