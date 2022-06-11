@@ -1,6 +1,8 @@
 const sqlite3 = require("sqlite3").verbose();
 const fs = require("fs");
+require("dotenv").config();
 
+console.log(process.env.PORT);
 // open database in memory
 let db = new sqlite3.Database("C:/Users/jk/Downloads/Asset.db", (err) => {
   if (err) {
