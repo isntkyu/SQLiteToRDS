@@ -1,5 +1,6 @@
 const sqlite3 = require("sqlite3").verbose();
 const fs = require("fs");
+const axios = require("axios").default;
 require("dotenv").config();
 
 console.log(process.env.PORT);
@@ -20,17 +21,48 @@ let sql3 = `select * from returnHistories;`;
 let sql4 = `select * from users;`;
 
 db.serialize(() => {
-  //직렬
-  db.all(sql1, [], (err, rows) => {
-    // 모든결과
-    if (err) {
-      throw err;
-    }
-    // rows.forEach((row) => {
-    console.log(rows);
-    fs.writeFileSync(`C:/Users/jk/Downloads/testAPP/${Date.now()}zz.txt`, "ss");
-    // });
+  db.parallelize(() => {
+    db.all(sql1, [], (err, rows) => {
+      if (err) {
+        throw err;
+      }
+      console.log(rows);
+      axios
+        .post("", {})
+        .then(() => {})
+        .catch(() => {});
+    });
+    db.all(sql4, [], (err, rows) => {
+      if (err) {
+        throw err;
+      }
+      console.log(rows);
+    });
+    db.serialize(() => {
+      db.all(sql2, [], (err, rows) => {
+        if (err) {
+          throw err;
+        }
+        console.log(rows);
+      });
+      db.all(sql3, [], (err, rows) => {
+        if (err) {
+          throw err;
+        }
+        console.log(rows);
+      });
+    });
   });
+  // db.all(sql1, [], (err, rows) => {
+  //   // 모든결과
+  //   if (err) {
+  //     throw err;
+  //   }
+  //   // rows.forEach((row) => {
+  //   console.log(rows);
+  //   fs.writeFileSync(`C:/Users/jk/Downloads/testAPP/${Date.now()}zz.txt`, "ss");
+  //   // });
+  // });
 });
 
 // close the database connection
