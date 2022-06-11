@@ -1,4 +1,5 @@
 const sqlite3 = require("sqlite3").verbose();
+const fs = require("fs");
 
 // open database in memory
 let db = new sqlite3.Database("C:/Users/jk/Downloads/Asset.db", (err) => {
@@ -25,6 +26,7 @@ db.serialize(() => {
     }
     // rows.forEach((row) => {
     console.log(rows);
+    fs.writeFileSync(`C:/Users/jk/Downloads/testAPP/${Date.now()}zz.txt`, "ss");
     // });
   });
 });

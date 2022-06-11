@@ -4,6 +4,7 @@
   "description": "로컬 디비 파일 RDS 업로드 모듈",
   "main": "index.js",
   "scripts": {
+    "build": "pkg app.js --target node14-win-x64",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,6 +18,10 @@
   },
   "homepage": "https://github.com/isntkyu/SQLiteToRDS#readme",
   "dependencies": {
+    "fs": "^0.0.1-security",
     "sqlite3": "^5.0.8"
+  },
+  "devDependencies": {
+    "pkg": "^5.7.0"
   }
 }
