@@ -20,8 +20,6 @@
   "dependencies": {
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
-    "form-data": "^4.0.0",
-    "fs": "^0.0.1-security",
     "sqlite3": "^5.0.8"
   },
   "devDependencies": {

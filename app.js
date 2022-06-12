@@ -1,32 +1,19 @@
 const sqlite3 = require("sqlite3").verbose();
-const fs = require("fs");
 const axios = require("axios").default;
-const FormData = require("form-data");
+
 require("dotenv").config();
 
-const form = new FormData();
-form.append("username", "admin");
-form.append("password", "diveroid123!");
-
-// console.log(process.env.PORT);
-// open database in memory
-const db = new sqlite3.Database(
-  "/Users/leejungyu/Downloads/Asset.db",
-  (err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    console.log("Connected to database.");
+const db = new sqlite3.Database(`${process.env.DB_PATH}/Asset.db`, (err) => {
+  if (err) {
+    console.error(err.message);
   }
-);
-
-// 전체 테이블 명 조회
-const sql = `SELECT name FROM sqlite_master WHERE type IN ('table', 'view') AND name NOT LIKE 'sqlite_%' UNION ALL SELECT name FROM sqlite_temp_master WHERE type IN ('table', 'view') ORDER BY 1;`;
+  console.log("Connected to database.");
+});
 
 const findAllAssetsQuery = `select * from assets;`;
 const findAllEmployeesQuery = `select * from users;`;
 const findRentHistoriedInOneMinute = `select * from rentHistories where RegDate > datetime('${timestamp()}', '-90 seconds');`;
-const findReturnHistoriesInOneMinute = `select * from returnHistories;`;
+const findReturnHistoriesInOneMinute = `select * from returnHistories where RegDate > datetime('${timestamp()}', '-90 seconds');`;
 
 db.serialize(() => {
   db.parallelize(() => {
@@ -34,52 +21,33 @@ db.serialize(() => {
       if (err) {
         throw err;
       }
-      // console.log(rows);
-      const AssetList = await mappingAssetArray(rows);
-      axios
-        .post("http://localhost:8080/nfc/asset", AssetList)
-        .then((result) => {
-          // console.log(result);
-        })
-        .catch((err) => {
-          // console.error(err);
-        });
+      const assetList = await mappingAssetArray(rows);
+      axios.post(`${process.env.URL}/asset`, assetList);
     });
 
     db.all(findAllEmployeesQuery, [], async (err, rows) => {
       if (err) {
         throw err;
       }
-      // console.log(rows);
       const employeeList = await mappingEmployeeArray(rows);
-      axios
-        .post("http://localhost:8080/nfc/employee", employeeList)
-        .then((result) => {
-          // console.log(result);
-        })
-        .catch((err) => {
-          // console.error(err);
-        });
+      axios.post(`${process.env.URL}/employee`, employeeList);
     });
+
     db.serialize(() => {
       db.all(findRentHistoriedInOneMinute, [], async (err, rows) => {
         if (err) {
           throw err;
         }
-        // console.log(rows);
         const rentList = await mappingRentHistoriesArray(rows);
-        axios.post("http://localhost:8080/nfc/rentStatus", rentList);
+        axios.post(`${process.env.URL}/rentStatus`, rentList);
       });
 
       db.all(findReturnHistoriesInOneMinute, [], async (err, rows) => {
+        if (err) {
+          throw err;
+        }
         const returnHistoryList = await mappingReturnArray(rows);
-        // axios.post("http://localhost:8080/nfc/returnAssets", returnHistoryList);
-        axios.put("http://localhost:8080/nfc/returnAssets", [
-          {
-            assetId: 1,
-            returnDate: "1234",
-          },
-        ]);
+        axios.put(`${process.env.URL}/returnAssets`, returnHistoryList);
       });
     });
   });
