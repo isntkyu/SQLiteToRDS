@@ -5,3 +5,7 @@ https://github.com/tryghost/node-sqlite3/wiki/Control-Flow
 - 윈도우 스케줄러 등록 테스트
 - pkg app.js --target node14-win-x64
 - https://growing-nyang.tistory.com/22
+
+---
+
+- url, 경로 체크해서 환경변수 .env 파일로 정리
