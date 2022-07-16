@@ -155,7 +155,7 @@ async function mappingReturnArray(rows) {
   rows.map((row) => {
     let obj = {};
     obj["assetId"] = row.AssetsId;
-    obj["rentDate"] = row.RegDate;
+    obj["returnDate"] = row.RegDate;
     newArr.push(obj);
   });
 
