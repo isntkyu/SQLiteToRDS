@@ -35,7 +35,7 @@ db.serialize(() => {
     });
 
     axios
-      .get(`${process.env.URL2}/allRentData`)
+      .get(`${process.env.URL}/allRentData`)
       .then((allRentData) => {
         const latestDate = allRentData.data[0].rentDate;
         // const notReturnedAssets = allRentData.data.filter(
