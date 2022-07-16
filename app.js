@@ -12,8 +12,9 @@ const db = new sqlite3.Database(`${process.env.DB_PATH}/Asset.db`, (err) => {
 
 const findAllAssetsQuery = `select * from assets;`;
 const findAllEmployeesQuery = `select * from users;`;
-const findRentHistoriedInOneMinute = `select * from rentHistories where RegDate > datetime('${timestamp()}', '-90 seconds');`;
-const findReturnHistoriesInOneMinute = `select * from returnHistories where RegDate > datetime('${timestamp()}', '-90 seconds');`;
+// const findRentHistoriedInOneMinute = `select * from rentHistories where RegDate > datetime('${timestamp()}', '-90 seconds');`;
+// const findReturnHistoriesInOneMinute = `select * from returnHistories where RegDate > datetime('${timestamp()}', '-90 seconds');`;
+const findAllReturnHistories = `select * from returnHistories`;
 
 db.serialize(() => {
   db.parallelize(() => {
@@ -33,33 +34,78 @@ db.serialize(() => {
       axios.post(`${process.env.URL}/employee`, employeeList);
     });
 
-    db.serialize(() => {
-      db.all(findRentHistoriedInOneMinute, [], async (err, rows) => {
-        if (err) {
-          throw err;
-        }
-        const rentList = await mappingRentHistoriesArray(rows);
-        axios.post(`${process.env.URL}/rentStatus`, rentList);
+    axios
+      .get(`${process.env.URL2}/allRentData`)
+      .then((allRentData) => {
+        const latestDate = allRentData.data[0].rentDate;
+        // const notReturnedAssets = allRentData.data.filter(
+        //   (row) => row.returnDate === null
+        // );
+        // console.log(notReturnedAssets);
+        console.log(latestDate);
+        const findRentHistoryAfterUpdateRDS = `select * from rentHistories where RegDate > datetime('${latestDate}');`;
+
+        db.serialize(() => {
+          db.all(findRentHistoryAfterUpdateRDS, [], async (err, rows) => {
+            if (err) {
+              throw err;
+            }
+            const rentList = await mappingRentHistoriesArray(rows);
+            if (rentList.length > 0) {
+              axios.post(`${process.env.URL}/rentStatus`, rentList);
+            }
+          });
+
+          db.all(findAllReturnHistories, [], async (err, rows) => {
+            if (err) {
+              throw err;
+            }
+            const returnHistoryList = await mappingReturnArray(rows);
+            axios
+              .put(`${process.env.URL}/returnAssets`, returnHistoryList)
+              .then((res) => {
+                console.log(res);
+              })
+              .catch((Err) => console.log(Err));
+          });
+        });
+      })
+      .catch((err) => {
+        console.log(err);
       });
 
-      db.all(findReturnHistoriesInOneMinute, [], async (err, rows) => {
-        if (err) {
-          throw err;
-        }
-        const returnHistoryList = await mappingReturnArray(rows);
-        axios.put(`${process.env.URL}/returnAssets`, returnHistoryList);
-      });
-    });
+    // db.serialize(() => {
+    //   db.all(findRentHistoriedInOneMinute, [], async (err, rows) => {
+    //     if (err) {
+    //       throw err;
+    //     }
+    //     const rentList = await mappingRentHistoriesArray(rows);
+    //     axios.post(`${process.env.URL}/rentStatus`, rentList);
+    //   });
+
+    //   db.all(findReturnHistoriesInOneMinute, [], async (err, rows) => {
+    //     if (err) {
+    //       throw err;
+    //     }
+    //     const returnHistoryList = await mappingReturnArray(rows);
+    //     axios
+    //       .put(`${process.env.URL}/returnAssets`, returnHistoryList)
+    //       .then((res) => {
+    //         console.log(res);
+    //       })
+    //       .catch((Err) => console.log(Err));
+    //   });
+    // });
   });
 });
 
 // close the database connection
-db.close((err) => {
-  if (err) {
-    return console.error(err.message);
-  }
-  console.log("Close the database connection.");
-});
+// db.close((err) => {
+//   if (err) {
+//     return console.error(err.message);
+//   }
+//   console.log("Close the database connection.");
+// });
 
 async function mappingAssetArray(rows) {
   let newArr = [];

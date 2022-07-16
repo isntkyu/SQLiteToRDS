@@ -13,3 +13,7 @@ https://github.com/tryghost/node-sqlite3/wiki/Control-Flow
 ---
 
 - 대여현황 전체 / 미반납 버튼 , 페이징, DB 반납일null로 채우기
+
+---
+
+DB close 하지 않는 것 권장.
